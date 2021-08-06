@@ -48,12 +48,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.boraydata.logparser</groupId>
-            <artifactId>Log-Parser</artifactId>
-            <version>0.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.7.2</version>

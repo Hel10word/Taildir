@@ -1,4 +1,4 @@
-package com.boraydata.utils;
+package com.boraydata.taildir.utils;
 
 /** 一些常量  用来存放 记录文件的 坐标
  * @author bufan

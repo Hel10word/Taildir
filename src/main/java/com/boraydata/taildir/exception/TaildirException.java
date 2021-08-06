@@ -1,4 +1,4 @@
-package com.boraydata.exception;
+package com.boraydata.taildir.exception;
 
 /** 用来处理异常的 类
  * @author bufan

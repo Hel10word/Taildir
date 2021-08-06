@@ -1,7 +1,7 @@
-package com.boraydata;
+package com.boraydata.taildir;
 
-import com.boraydata.exception.TaildirException;
-import com.boraydata.utils.TaildirConstant;
+import com.boraydata.taildir.exception.TaildirException;
+import com.boraydata.taildir.utils.TaildirConstant;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,28 +15,31 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** 用来处理 Taildir 的坐标文件 与  需要监听的文件
+/** 用来    读取与写入文件坐标信息
  * @author bufan
  * @data 2021/7/27
  */
-public class TaildirFileMatcher {
+public class TaildirMatcher {
+    // 存放 文件坐标位置的  配置文件
     private static final String  POINTER_FILE = TaildirConstant.DEFAULT_POINTER_FILE;
+    // 坐标信息中的分隔符   文件名$DIVIDE_SING$坐标点   ep:E://test.log ?*? 55
     private static final String DIVIDE_SIGN = TaildirConstant.DEFAULT_INFO_DIVIDE_SIGN;
+    // 使用正则匹配 DICIDE_SING 获取相关信息
     private static final String DIVIDE_SIGN_REGEX = TaildirConstant.DEFAULT_INFO_DIVIDE_SIGN_REGEX;
 
-    private Path positionFilePath;
+    private final Path positionFilePath;
 
     // 加载 坐标 配置文件
-    public TaildirFileMatcher(){
+    public TaildirMatcher(){
         if(isFile(POINTER_FILE)) {
             this.positionFilePath = Paths.get(POINTER_FILE);
         }else {
             throw new TaildirException("Failed to new POINTER_FILE");
         }
-
     }
+
     // 用来 检验 配置文件是否存在 ，不存在则创建
-    public boolean isFile(String failPath){
+    private boolean isFile(String failPath){
         File file = new File(failPath);
         try {
             if(!file.exists()){
@@ -44,7 +47,6 @@ public class TaildirFileMatcher {
                 // 目录不存在  并且 创建目录不成功
                 if(!parentFile.exists()&&!parentFile.mkdirs())
                         return false;
-
                 // 创建文件
                 return file.createNewFile();
             }
@@ -54,27 +56,24 @@ public class TaildirFileMatcher {
         }
     }
 
-    // 用来 更新 PositionFileInfo 的信息
+    // 用来 写入 PositionFileInfo 的信息     写入方式是  覆盖写入
     public void updatePositionFileInfo(Map<String, TaildirFile> map){
         try (BufferedWriter writer = Files.newBufferedWriter(
                 this.positionFilePath,
                 StandardCharsets.UTF_8,
                 StandardOpenOption.WRITE)){
-
             for (TaildirFile entity : map.values())
                 writer.write(packInfo(entity)+"\n");
             writer.flush();
-
         }catch (IOException e){
             e.printStackTrace();
         }
-
     }
 
     /**
      * 获取  getPositionInfoMap  的相关信息
      * 文件绝对路径  TaildirFile 信息
-     * @return ex:{C://test1.log=TaildirInfoEntity{filePath='C://test1.log', fileName='test1.log', filePointer=0, fileLength=0}}
+     * @return  存放的 是   文件的绝对路径   与   上次读取完的位置  ex:{C://test1.log , 233}
      */
     public Map<String, String> getPositionInfoMap(){
         try {
@@ -88,16 +87,7 @@ public class TaildirFileMatcher {
         }
     }
 
-    /**
-     * 用来将   坐标信息   封装为对象
-     */
-//    private Map<String, Long> unpackInfo(String str){
-//        String[] split = str.split(DIVIDE_SIGN_REGEX);
-//        if(split.length==2)
-//            return new TaildirFile(split[0],split[1],Long.valueOf(split[2]),Long.valueOf(split[3]));
-//        return Collections.emptyMap();
-//    }
-
+    // 用来  提取文件的 坐标信息
     private String packInfo(TaildirFile entity){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(entity.getFilePath());
